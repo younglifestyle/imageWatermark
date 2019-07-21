@@ -39,7 +39,7 @@ func HandleUserImage() (string, error) {
 
 	// 图片按比例缩放
 	dst := imaging.Resize(m, bm.Bounds().Max.X, SquareHeight, imaging.Lanczos)
-	// 将图片粘贴到背景图的固定位置
+	// 将图片粘贴到背景图的固定位置  最后的参数控制虚化程度 1,不虚化，遮盖背景
 	result := imaging.Overlay(bm, dst, image.Pt(0, bm.Bounds().Max.Y-SquareHeight), 0.3)
 	writeOnImage(result)
 
@@ -55,18 +55,23 @@ func HandleUserImage() (string, error) {
 func writeOnImage(target *image.NRGBA) {
 	c := freetype.NewContext()
 
+	// 设置屏幕每英寸的分辨率
 	c.SetDPI(256)
+	// 背景
 	c.SetClip(target.Bounds())
+	// 设置目标图像
 	c.SetDst(target)
 	c.SetHinting(font.HintingFull)
 
 	// 设置文字颜色、字体、字大小
 	c.SetSrc(image.NewUniform(color.RGBA{R: 220, G: 220, B: 220, A: 220}))
+	// 以磅为单位设置字体大小
 	c.SetFontSize(FontSize)
 	fontFam, err := getFontFamily()
 	if err != nil {
 		fmt.Println("get font family error")
 	}
+	// 设置用于绘制文本的字体
 	c.SetFont(fontFam)
 
 	drawStr := "你好，世界"
